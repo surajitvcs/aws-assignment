@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.amazonaws.lambda</groupId>
-	<artifactId>get-announcement-lambda</artifactId>
+	<artifactId>announcement-lambda</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
