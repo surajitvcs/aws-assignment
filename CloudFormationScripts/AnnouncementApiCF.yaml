@@ -1,0 +1,284 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda and API Gateway
+Parameters:
+  S3Bucket:
+    Description: The name of the S3 bucket that contains the source code of your Lambda
+      function.
+    Type: String
+    Default: announcement-lambda-function-repo
+  S3Key:
+    Description: The location and name of your source code .zip file.
+    Type: String
+    Default: aws-lambda-demo10-1.0.0.jar
+Resources:
+  AnnouncementTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: Id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: Id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: Announcement
+
+  AnnouncementLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: logs
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            Resource: arn:aws:logs:*:*:*
+      - PolicyName: dynamodb
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Sid: '1'
+            Effect: Allow
+            Action:
+            - dynamodb:Scan
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:DeleteItem
+            - dynamodb:Query
+            - dynamodb:UpdateItem
+            Resource: !Join
+            - ''
+            -
+             - 'arn:aws:dynamodb:'
+             - !Ref 'AWS::Region'
+             - ':'
+             - !Ref 'AWS::AccountId'
+             - ':table/Announcement'
+  AnnouncementPostApiLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Ref S3Bucket
+        S3Key: !Ref S3Key
+      Description: generic handler
+      FunctionName: AnnouncementPostApiLambdaViaCF
+      Handler: com.aws.announcement.lambda.handler.AnnouncementServicePostDataHandler
+      MemorySize: 512
+      Role: !GetAtt AnnouncementLambdaRole.Arn
+      Runtime: java8
+      Timeout: 60
+  AnnouncementGetApiLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Ref S3Bucket
+        S3Key: !Ref S3Key
+      Description: generic handler
+      FunctionName: AnnouncementGetApiLambdaViaCF
+      Handler: com.aws.announcement.lambda.handler.AnnouncementServiceGetAllHandler
+      MemorySize: 512
+      Role: !GetAtt AnnouncementLambdaRole.Arn
+      Runtime: java8
+      Timeout: 60
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: Announcement API Gateway
+      MinimumCompressionSize: 0
+      EndpointConfiguration:
+       Types:
+         - REGIONAL
+      Policy: 
+        Statement: 
+          - 
+            Action: execute-api:Invoke
+            Effect: Allow
+            Resource: "execute-api:/*/*/*"
+            Principal: "*"   
+  AnnouncementResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApi
+      ParentId: !GetAtt RestApi.RootResourceId
+      PathPart: announcement
+  AnnouncementGet:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApi
+      ResourceId: !Ref AnnouncementResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: GET
+        Uri: !Join
+        - ''
+        -
+          - 'arn:aws:apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/arn:aws:lambda:'
+          - !Ref 'AWS::Region'
+          - ':'
+          - !Ref 'AWS::AccountId'
+          - ':function:'
+          - !Ref AnnouncementGetApiLambda
+          - '/invocations'
+          
+      MethodResponses:
+      - 
+        StatusCode: "200"
+        ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: false
+        ResponseModels:
+            "application/json": "Empty"
+      - 
+        StatusCode: "400"
+        ResponseParameters:
+            method.response.header.Last-Modified: false
+            method.response.header.Access-Control-Allow-Origin: false
+        ResponseModels:
+            "application/json;charset=UTF-8": "Empty"
+      - 
+        StatusCode: "404"
+        ResponseParameters:
+            method.response.header.Last-Modified: false
+            method.response.header.Access-Control-Allow-Origin: false
+        ResponseModels:
+             "application/json;charset=UTF-8": "Empty"
+      - 
+        StatusCode: "500"
+        ResponseParameters:
+            method.response.header.Last-Modified: false
+            method.response.header.Access-Control-Allow-Origin: false
+        ResponseModels:
+            "application/json;charset=UTF-8": "Empty"
+      RequestParameters:
+        "method.request.header.origin": true
+        "method.request.header.cookie": false
+  AnnouncementPost:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApi
+      ResourceId: !Ref AnnouncementResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join
+        - ''
+        -
+          - 'arn:aws:apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/arn:aws:lambda:'
+          - !Ref 'AWS::Region'
+          - ':'
+          - !Ref 'AWS::AccountId'
+          - ':function:'
+          - !Ref AnnouncementPostApiLambda
+          - '/invocations'
+      MethodResponses:
+      - 
+        StatusCode: "201"
+        ResponseParameters:
+            method.response.header.Cache-Control: false
+            method.response.header.Last-Modified: false
+            method.response.header.Access-Control-Allow-Origin: false
+        ResponseModels:
+            "application/json;charset=UTF-8": "Empty"
+      - 
+        StatusCode: "304"
+        ResponseParameters:
+            method.response.header.Last-Modified: false
+            method.response.header.Access-Control-Allow-Origin: false
+        ResponseModels:
+            "application/json;charset=UTF-8": "Empty"
+      - 
+        StatusCode: "400"
+        ResponseParameters:
+            method.response.header.Last-Modified: false
+            method.response.header.Access-Control-Allow-Origin: false
+        ResponseModels:
+            "application/json;charset=UTF-8": "Empty"
+      RequestParameters:
+        "method.request.header.Api-Version" : true
+        "method.request.header.If-Modified-Since" : false
+        "method.request.header.Accept-Encoding" : false
+        "method.request.header.Accept" : false
+        "method.request.path.app-id": false
+      
+  AnnouncementGetApiLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt AnnouncementGetApiLambda.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Join
+            - ''
+            -
+              - 'arn:aws:execute-api:'
+              - !Ref 'AWS::Region'
+              - ':'
+              - !Ref 'AWS::AccountId'
+              - ':'
+              - !Ref RestApi
+              - "/*/*/*"
+  AnnouncementPostApiLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt AnnouncementPostApiLambda.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Join
+            - ''
+            -
+              - 'arn:aws:execute-api:'
+              - !Ref 'AWS::Region'
+              - ':'
+              - !Ref 'AWS::AccountId'
+              - ':'
+              - !Ref RestApi
+              - "/*"
+  RestApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref RestApi
+      StageName: "stage"
+      Description: "stage Deployment"
+    DependsOn:
+    - AnnouncementGet
+    - AnnouncementPost
+  IamUserForPostmanTesting:
+    Type: AWS::IAM::User
+    Properties:
+      ManagedPolicyArns:
+        - !Ref IamUserForPostmanTestingPolicy
+      
+  IamUserForPostmanTestingPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "For testing via postman"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "execute-api:Invoke"
+            Resource: !Join [':', ['arn:aws:execute-api', !Ref 'AWS::Region', '*', !Ref RestApi, '/*']]
+Outputs:
+  ApiId:
+    Value: !Ref RestApi
