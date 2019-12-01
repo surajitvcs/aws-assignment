@@ -17,3 +17,14 @@ This repository contains serverless artifacts for AWS microservices assignment
 
 ***
 
+### AWS services used 
+
+- API Gateway
+- Dynamo DB
+- Lambda
+- Cloudformation
+
+### Note
+
+- API is not protected using cognito.
+
