@@ -1,5 +1,6 @@
 package com.aws.announcement.lambda.model;
 
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

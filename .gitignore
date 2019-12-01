@@ -17,5 +17,3 @@ jcr.log
 atlassian-ide-plugin.xml
 .vlt-sync.log
 .vlt-sync-config.properties
-node
-node_modules

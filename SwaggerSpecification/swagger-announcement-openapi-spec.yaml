@@ -1,0 +1,127 @@
+openapi: 3.0.1
+info:
+  title: Announcement API specification
+  description: This is a sample specification for announcement API using OpenAPI 3.0 standards.
+  contact:
+    email: surajit.bhattacharya@wipro.com
+  license:
+    name: Apache 2.0 
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+
+paths:
+  /announcements:
+    post:
+      tags:
+      - announcement
+      summary: Add a new announcement 
+      operationId: addAnnouncement
+      requestBody:
+        description: Announcement object that needs to be added to the repository
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiResponseSuccess'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ApiResponseSuccess'
+        required: true
+      responses:
+        201:
+          description: Created 
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/ApiResponseSuccess'
+            application/xml:
+              schema:
+                  $ref: '#/components/schemas/ApiResponseSuccess'
+        400:
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                  $ref: '#/components/schemas/Error'
+     
+  /announcements/all:
+    get:
+      tags:
+      - announcement
+      summary: Returns all announcements from the system
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findPetsByStatus
+      responses:
+        200:
+          description: successful 
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/ApiResponseSuccess'
+            application/xml:
+              schema:
+                  $ref: '#/components/schemas/ApiResponseSuccess'
+        400:
+          description: Invalid Request body
+          content:
+             application/json:
+              schema:
+                  $ref: '#/components/schemas/Error'
+             application/xml:
+              schema:
+                  $ref: '#/components/schemas/Error'
+     
+
+components:
+  schemas:
+    Announcement:
+      required:
+      - title
+      - description
+      - date
+      type: object
+      properties:
+        title:
+          type: string
+          example: Announcement title
+        description:
+          type: string
+          example: Announcement description
+        date:
+          type: string
+          format: date-time
+          example: 2017-1024T19:43:55Z
+      xml:
+        name: Announcement
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 0a7f0212-04ca-402e-8650-8a179f90405d
+              status:
+                type: string
+                example: 400
+              code:
+                type: string
+                example: INVALID_REQUEST_BODY
+              title:
+                type: string
+                example: Invalid request body
+              detail:
+                type: string
+                example: detail
+            xml:
+              name: Error
+    ApiResponseSuccess:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Announcement'

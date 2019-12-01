@@ -1,0 +1,111 @@
+{
+	"info": {
+		"_postman_id": "86c9c60c-352d-48ba-8fef-fd0281c61cd4",
+		"name": "AnnouncementAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Announcement API GET",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://d5e4fjo9h2.execute-api.us-east-1.amazonaws.com/stage/announcement",
+					"protocol": "https",
+					"host": [
+						"d5e4fjo9h2",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"stage",
+						"announcement"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Announcement POST API - Invalid Request Body",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Api-Version",
+						"type": "text",
+						"value": "2"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"title\": \"Announcement Title 05\",\n    \"date\": \"date\"\n}"
+				},
+				"url": {
+					"raw": "https://d5e4fjo9h2.execute-api.us-east-1.amazonaws.com/stage/announcement",
+					"protocol": "https",
+					"host": [
+						"d5e4fjo9h2",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"stage",
+						"announcement"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Announcement POST API - Invalid Request Body",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Api-Version",
+						"type": "text",
+						"value": "2"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"title\": \"Announcement Title 05\",\n    \"date\": \"date\"\n}"
+				},
+				"url": {
+					"raw": "https://d5e4fjo9h2.execute-api.us-east-1.amazonaws.com/stage/announcement",
+					"protocol": "https",
+					"host": [
+						"d5e4fjo9h2",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"stage",
+						"announcement"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

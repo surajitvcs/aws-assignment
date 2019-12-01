@@ -1,3 +1,5 @@
+# Cloudformation stack for Announcement API using
+# API Gateway , DynamoDB , Cognito authorizer
 ---
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Lambda and API Gateway
@@ -124,7 +126,7 @@ Resources:
       AuthorizationType: NONE
       Integration:
         Type: AWS_PROXY
-        IntegrationHttpMethod: GET
+        IntegrationHttpMethod: POST
         Uri: !Join
         - ''
         -
@@ -220,6 +222,73 @@ Resources:
         "method.request.header.Accept-Encoding" : false
         "method.request.header.Accept" : false
         "method.request.path.app-id": false
+  
+  GatewayResponse401:
+    Type: 'AWS::ApiGateway::GatewayResponse'
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+      ResponseTemplates:
+        "application/json;charset=UTF-8" : |
+                {
+                  "errors": [
+                    {
+                      "id": "$context.requestId",
+                      "status": "401",
+                      "code": "INVALID_AUTHORIZATION",
+                      "title": "Authorization is invalid.",
+                      "detail": $context.error.messageString
+                    }
+                  ]
+                }
+      ResponseType: UNAUTHORIZED
+      RestApiId: !Ref RestApi
+      StatusCode: '401'
+        
+  GatewayResponse429:
+    Type: 'AWS::ApiGateway::GatewayResponse'
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+      ResponseTemplates:
+        "application/json;charset=UTF-8" : |
+                {
+                  "errors": [
+                    {
+                      "id": "$context.requestId",
+                      "status": "429",
+                      "code": "THROTTLED",
+                      "title": "Throttling issue encountered.",
+                      "detail": $context.error.messageString
+                      
+                    }
+                  ]
+                }
+      ResponseType: THROTTLED
+      RestApiId: !Ref RestApi
+      StatusCode: '429'
+      
+  GatewayResponseBody400:
+    Type: 'AWS::ApiGateway::GatewayResponse'
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+      ResponseTemplates:
+        "application/json;charset=UTF-8" : |
+                {
+                  "errors": [
+                     {
+                       "id": "$context.requestId",
+                       "status": "400",
+                       "code": "INVALID_REQUEST_BODY",
+                       "title": "Invalid request body",
+                       "detail": $context.error.messageString
+                     }
+                   ]
+                }
+      ResponseType: BAD_REQUEST_BODY
+      RestApiId: !Ref RestApi
+      StatusCode: '400'
       
   AnnouncementGetApiLambdaPermission:
     Type: AWS::Lambda::Permission

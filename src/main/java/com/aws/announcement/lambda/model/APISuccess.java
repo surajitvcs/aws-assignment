@@ -1,5 +1,6 @@
 package com.aws.announcement.lambda.model;
 
+
 public class APISuccess extends APIResponseStatus {
 
 	private String statusMessage;

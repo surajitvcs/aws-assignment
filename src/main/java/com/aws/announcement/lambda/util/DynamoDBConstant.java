@@ -1,5 +1,6 @@
 package com.aws.announcement.lambda.util;
 
+
 public class DynamoDBConstant {
 
 	public static final String TABLE_ANNOUNCEMENT = "Announcement";

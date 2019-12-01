@@ -1,5 +1,6 @@
 package com.aws.announcement.lambda.model;
 
+
 import java.util.Map;
 
 public class LambdaProxyResponse extends BaseResponse{

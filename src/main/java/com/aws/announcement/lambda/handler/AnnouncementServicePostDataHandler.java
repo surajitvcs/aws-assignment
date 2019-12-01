@@ -1,5 +1,6 @@
 package com.aws.announcement.lambda.handler;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

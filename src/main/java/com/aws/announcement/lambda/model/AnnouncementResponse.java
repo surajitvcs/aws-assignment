@@ -1,5 +1,6 @@
 package com.aws.announcement.lambda.model;
 
+
 import java.util.ArrayList;
 import java.util.List;
 

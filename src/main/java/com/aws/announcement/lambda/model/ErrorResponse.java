@@ -1,5 +1,6 @@
 package com.aws.announcement.lambda.model;
 
+
 import java.util.List;
 
 public class ErrorResponse extends BaseResponse {
